@@ -86,7 +86,10 @@ impl Generator {
                                 build.push_tokens(quote!(#output_ident.push_for_frame();));
                                 after.extend(quote!(#output_ident.pop_frame();))
                             }
-                            "match" => {}
+                            "match" => {
+                                build.push_tokens(quote!(#output_ident.push_if_frame();));
+                                after.extend(quote!(#output_ident.pop_frame();))
+                            }
                             "let" => {}
                             _ => {}
                         }
@@ -114,7 +117,9 @@ impl Generator {
                 };
                 let mut body = TokenTree::Group(Group::new(Delimiter::Brace, body));
                 body.set_span(arms_span.collapse());
+                build.push_tokens(quote!(#output_ident.push_if_frame();));
                 build.push_tokens(quote!(#head #body));
+                build.push_tokens(quote!(#output_ident.pop_frame();));
             }
             Markup::Patrial { body } => {
                 build.push_tokens(quote!(#output_ident.push_nested(#body);));
